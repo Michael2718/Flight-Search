@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Flight Search</string>
     <string name="search">Search</string>
+    <string name="save_to_favourite">Save to favourite</string>
 </resources>
