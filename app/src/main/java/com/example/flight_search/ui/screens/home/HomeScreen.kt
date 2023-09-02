@@ -58,45 +58,6 @@ fun HomeScreen(
     Scaffold(
         modifier = modifier,
         topBar = {
-//            TopAppBar(
-//                title = {
-//                    Text(
-//                        text = stringResource(R.string.app_name),
-////                        color = MaterialTheme.colorScheme.secondary,
-//                        fontWeight = FontWeight.Bold,
-//                        style = MaterialTheme.typography.headlineSmall
-//                    )
-//                },
-//                actions = {
-//                    IconButton(onClick = {}) {
-//                        Icon(
-//                            imageVector = Icons.Filled.Search,
-//                            contentDescription = stringResource(R.string.search)
-//                        )
-//                    }
-//                },
-//                colors = TopAppBarDefaults.topAppBarColors(
-//                    containerColor = MaterialTheme.colorScheme.primary,
-//                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-//                    navigationIconContentColor = MaterialTheme.colorScheme.surface,
-//                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-//                )
-//            )
-//            CenterAlignedTopAppBar(
-//                title = {
-//
-//                },
-//                modifier = Modifier,
-////                navigationIcon = {
-////                    Icon(painter = painterResource(R.drawable.baseline_flight_24), contentDescription = null)
-////                },
-////                colors = TopAppBarDefaults.topAppBarColors(
-////                    containerColor = MaterialTheme.colorScheme.primary,
-////                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
-////                    navigationIconContentColor = MaterialTheme.colorScheme.surface,
-////                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-////                )
-//            )
             SearchTopAppBar(
                 query = uiState.query,
                 suggestionsFlow = viewModel.getSuggestions(uiState.query),
@@ -189,9 +150,11 @@ fun SearchTopAppBar(
         ) {
             items(items = suggestionsList) { suggestion ->
                 ListItem(
-                    headlineContent = { Text(suggestion.name) },
-                    leadingContent = {
-                        Text(text = suggestion.iataCode, fontWeight = FontWeight.Bold)
+                    headlineContent = {
+                        Text(suggestion.iataCode, fontWeight = FontWeight.Bold)
+                    },
+                    supportingContent = {
+                        Text(text = suggestion.name)
                     },
                     modifier = Modifier
                         .clickable {

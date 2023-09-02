@@ -2,22 +2,43 @@ package com.example.flight_search.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.flight_search.FlightSearchApplication
+import com.example.flight_search.data.Airport
 import com.example.flight_search.data.FlightSearchRepository
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 class HomeViewModel(
     private val flightSearchRepository: FlightSearchRepository
 ) : ViewModel() {
 
+//    private val _uiState = MutableStateFlow(
+//        HomeUiState()
+//    )
+
+//    val uiState: StateFlow<HomeUiState> = flightSearchRepository.getSuggestions("")
+//        .map {
+//            HomeUiState(suggestions = it)
+//        }
+//        .stateIn(
+//            scope = viewModelScope,
+//            started = SharingStarted.WhileSubscribed(TIMEOUT_MILLIS),
+//            initialValue = HomeUiState()
+//        )
+
     private val _uiState = MutableStateFlow(
         HomeUiState(
             query = "",
-            isSearching = false
+            isSearching = false,
+//            suggestions = getSuggestions("")
         )
     )
 
@@ -54,9 +75,11 @@ class HomeViewModel(
     }
 
     companion object {
-        val factory : ViewModelProvider.Factory = viewModelFactory {
+        private const val TIMEOUT_MILLIS = 5_000L
+        val factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                val application = (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as FlightSearchApplication)
+                val application =
+                    (this[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as FlightSearchApplication)
                 val flightSearchRepository = application.container.flightSearchRepository
                 HomeViewModel(flightSearchRepository)
             }
@@ -67,5 +90,5 @@ class HomeViewModel(
 data class HomeUiState(
     val query: String,
     val isSearching: Boolean,
-//    val flights: Flow<List<Airport>>
+//    val suggestions: Flow<List<Airport>>
 )

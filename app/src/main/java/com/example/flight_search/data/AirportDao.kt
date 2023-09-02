@@ -26,7 +26,7 @@ interface AirportDao {
         """
             SELECT * FROM airport
             WHERE iata_code LIKE ('%' || :query || '%') OR name LIKE ('%' || :query || '%')
-            LIMIT 10
+            ORDER BY iata_code ASC
         """
     )
     fun getSuggestions(query: String): Flow<List<Airport>>
