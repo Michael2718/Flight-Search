@@ -85,15 +85,12 @@ fun HomeScreen(
             )
         }
     ) { innerPadding ->
-//        HomeScreenContent(
-//            uiState = uiState,
-//            modifier = Modifier
-//                .padding(innerPadding)
-//        )
-        Column(
+        HomeScreenContent(
+            query = uiState.query,
+            getRoutes = {},
             modifier = Modifier
                 .padding(innerPadding)
-        ) {}
+        )
     }
 }
 
@@ -170,15 +167,18 @@ fun SearchTopAppBar(
 
 @Composable
 fun HomeScreenContent(
-    uiState: HomeUiState,
+    query: String,
+    getRoutes: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+//    val
+
     Column(
         modifier = Modifier
             .padding(dimensionResource(R.dimen.padding_medium))
     ) {
         Text(
-            text = if (uiState.query.isEmpty()) {
+            text = if (query.isEmpty()) {
                 stringResource(R.string.favourite_routes)
             } else {
                 stringResource(R.string.flights_from, "iata_code")
@@ -187,23 +187,34 @@ fun HomeScreenContent(
             style = MaterialTheme.typography.titleLarge
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
-        FlightCard(
-            departure = Airport(
-                1,
-                "OPO",
-                "Francisco Sá Carneiro Airport",
-                5053134
-            ),
-            destination = Airport(
+
+        val destinations = listOf(
+            Airport(
                 2,
                 "ARN",
                 "Stockholm Arlanda Airport",
                 7494765
             ),
-            modifier = Modifier.padding(
-                bottom = dimensionResource(R.dimen.padding_medium)
+            Airport(
+                1,
+                "OPO",
+                "Francisco Sá Carneiro Airport",
+                5053134
             )
         )
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items(items = destinations) { destination ->
+                FlightCard(
+                    departure = destination,
+                    destination = destination,
+                    modifier = Modifier.padding(
+                        bottom = dimensionResource(R.dimen.padding_medium)
+                    )
+                )
+            }
+        }
     }
 }
 
