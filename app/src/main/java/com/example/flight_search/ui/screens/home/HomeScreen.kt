@@ -66,6 +66,7 @@ fun HomeScreen(
                 },
                 onSearch = {
                     viewModel.updateQuery(it)
+                    viewModel.updateDeparture(it)
                     viewModel.isSearching(false)
                     keyboardController?.hide()
                 },
@@ -87,7 +88,8 @@ fun HomeScreen(
     ) { innerPadding ->
         HomeScreenContent(
             query = uiState.query,
-            getRoutes = {},
+            currentDeparture = uiState.currentDeparture,
+            destinationsFlow = viewModel.getDestinations(uiState.currentDeparture.iataCode), // TODO: ????????
             modifier = Modifier
                 .padding(innerPadding)
         )
@@ -156,7 +158,6 @@ fun SearchTopAppBar(
                     modifier = Modifier
                         .clickable {
                             onSearch(suggestion.name)
-                            onActiveChange(false)
                         }
                         .fillMaxWidth()
                 )
@@ -168,11 +169,10 @@ fun SearchTopAppBar(
 @Composable
 fun HomeScreenContent(
     query: String,
-    getRoutes: () -> Unit,
+    currentDeparture: Airport,
+    destinationsFlow: Flow<List<Airport>>,
     modifier: Modifier = Modifier
 ) {
-//    val
-
     Column(
         modifier = Modifier
             .padding(dimensionResource(R.dimen.padding_medium))
@@ -181,14 +181,14 @@ fun HomeScreenContent(
             text = if (query.isEmpty()) {
                 stringResource(R.string.favourite_routes)
             } else {
-                stringResource(R.string.flights_from, "iata_code")
+                stringResource(R.string.flights_from, currentDeparture.iataCode)
             },
             modifier.padding(dimensionResource(R.dimen.padding_medium)),
             style = MaterialTheme.typography.titleLarge
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
 
-        val destinations = listOf(
+        val savedDestinations = listOf(
             Airport(
                 2,
                 "ARN",
@@ -202,17 +202,31 @@ fun HomeScreenContent(
                 5053134
             )
         )
+
+        val destinationsList by destinationsFlow.collectAsState(initial = emptyList())
         LazyColumn(
             modifier = Modifier.fillMaxWidth()
         ) {
-            items(items = destinations) { destination ->
-                FlightCard(
-                    departure = destination,
-                    destination = destination,
-                    modifier = Modifier.padding(
-                        bottom = dimensionResource(R.dimen.padding_medium)
+            if (query.isEmpty()) {
+                items(items = savedDestinations) { destination ->
+                    FlightCard(
+                        departure = destination,
+                        destination = destination,
+                        modifier = Modifier.padding(
+                            bottom = dimensionResource(R.dimen.padding_medium)
+                        )
                     )
-                )
+                }
+            } else {
+                items(items = destinationsList) { destination ->
+                    FlightCard(
+                        departure = currentDeparture,
+                        destination = destination,
+                        modifier = Modifier.padding(
+                            bottom = dimensionResource(R.dimen.padding_medium)
+                        )
+                    )
+                }
             }
         }
     }
