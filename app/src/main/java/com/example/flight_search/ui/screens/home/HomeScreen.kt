@@ -68,6 +68,7 @@ fun HomeScreen(
                     viewModel.updateQuery(it)
                     viewModel.updateDeparture(it)
                     viewModel.isSearching(false)
+                    viewModel.updateDestinations(uiState.currentDeparture)
                     keyboardController?.hide()
                 },
                 isSearching = uiState.isSearching,
@@ -89,7 +90,7 @@ fun HomeScreen(
         HomeScreenContent(
             query = uiState.query,
             currentDeparture = uiState.currentDeparture,
-            destinationsFlow = viewModel.getDestinations(uiState.currentDeparture.iataCode), // TODO: ????????
+            destinations = uiState.destinations,
             modifier = Modifier
                 .padding(innerPadding)
         )
@@ -169,8 +170,8 @@ fun SearchTopAppBar(
 @Composable
 fun HomeScreenContent(
     query: String,
-    currentDeparture: Airport,
-    destinationsFlow: Flow<List<Airport>>,
+    currentDeparture: Airport?,
+    destinations: List<Airport>,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -180,6 +181,8 @@ fun HomeScreenContent(
         Text(
             text = if (query.isEmpty()) {
                 stringResource(R.string.favourite_routes)
+            } else if (currentDeparture == null) {
+                "Sorry, we couldn't find any airports matching your search. Please double-check your query or try searching for a different airport."
             } else {
                 stringResource(R.string.flights_from, currentDeparture.iataCode)
             },
@@ -203,7 +206,7 @@ fun HomeScreenContent(
             )
         )
 
-        val destinationsList by destinationsFlow.collectAsState(initial = emptyList())
+//        val destinationsList by destinationsFlow.collectAsState(initial = emptyList())
         LazyColumn(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -217,8 +220,10 @@ fun HomeScreenContent(
                         )
                     )
                 }
+            } else if (currentDeparture == null) {
+                items(items = emptyList<String>()) {}
             } else {
-                items(items = destinationsList) { destination ->
+                items(items = destinations) { destination ->
                     FlightCard(
                         departure = currentDeparture,
                         destination = destination,

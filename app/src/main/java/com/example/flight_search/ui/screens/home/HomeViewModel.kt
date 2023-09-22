@@ -32,15 +32,25 @@ class HomeViewModel(
             flightSearchRepository.getItemByQuery(query).collect { list ->
                 _uiState.update {
                     it.copy(
-                        currentDeparture = list.first()
+                        currentDeparture = list.firstOrNull()
                     )
                 }
             }
         }
     }
 
-    fun getDestinations(departureCode: String) =
-        flightSearchRepository.getDestinations(departureCode)
+    fun updateDestinations(currentDeparture: Airport?) {
+        val iataCode = currentDeparture?.iataCode ?: ""
+        viewModelScope.launch(Dispatchers.IO) {
+            flightSearchRepository.getDestinations(iataCode).collect { list ->
+                _uiState.update {
+                    it.copy(
+                        destinations = list
+                    )
+                }
+            }
+        }
+    }
 
     fun updateQuery(query: String) {
         _uiState.update {
@@ -72,11 +82,7 @@ class HomeViewModel(
 
 data class HomeUiState(
     val query: String = "",
-    val currentDeparture: Airport = Airport(
-        id = -1,
-        iataCode = "###",
-        name = "Empty airport",
-        passengers = 0
-    ),
+    val currentDeparture: Airport? = null,
+    val destinations: List<Airport> = emptyList(),
     val isSearching: Boolean = false,
 )
