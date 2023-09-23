@@ -1,5 +1,6 @@
 package com.example.flight_search.ui.screens.home
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -41,9 +45,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flight_search.R
 import com.example.flight_search.data.Airport
+import com.example.flight_search.data.FavoriteRoute
 import com.example.flight_search.data.FavoriteRouteExtended
 import com.example.flight_search.ui.theme.FlightSearchTheme
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.runBlocking
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -98,7 +104,17 @@ fun HomeScreen(
             query = uiState.query,
             currentDeparture = uiState.currentDeparture,
             destinations = uiState.destinations,
-            favoriteRoutes = uiState.favoriteRoutes,
+            favoriteRoutes = viewModel.getAllFavoriteRoutes()
+                .collectAsState(initial = emptyList()).value,
+            isFavorite = { route ->
+                viewModel.isFavoriteRoute(route)
+            },
+            addFavorite = {
+                viewModel.addFavoriteRoute(it)
+            },
+            removeFavorite = {
+                viewModel.removeFavoriteRoute(it)
+            },
             modifier = Modifier
                 .padding(innerPadding)
         )
@@ -183,6 +199,9 @@ fun HomeScreenContent(
     currentDeparture: Airport?,
     destinations: List<Airport>,
     favoriteRoutes: List<FavoriteRouteExtended>,
+    isFavorite: suspend (FavoriteRoute) -> Boolean,
+    addFavorite: (FavoriteRoute) -> Unit,
+    removeFavorite: (FavoriteRoute) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -209,7 +228,13 @@ fun HomeScreenContent(
             if (query.isEmpty()) {
                 items(items = favoriteRoutes) { route ->
                     FlightCard(
-                        route = route,
+                        departureCode = route.departureCode,
+                        departureName = route.departureName,
+                        destinationCode = route.destinationCode,
+                        destinationName = route.destinationName,
+                        isFavorite = isFavorite,
+                        addFavorite = addFavorite,
+                        removeFavorite = removeFavorite,
                         modifier = Modifier.padding(
                             bottom = dimensionResource(R.dimen.padding_medium)
                         )
@@ -220,8 +245,13 @@ fun HomeScreenContent(
             } else {
                 items(items = destinations) { destination ->
                     FlightCard(
-                        departure = currentDeparture,
-                        destination = destination,
+                        departureCode = currentDeparture.iataCode,
+                        departureName = currentDeparture.name,
+                        destinationCode = destination.iataCode,
+                        destinationName = destination.name,
+                        isFavorite = isFavorite,
+                        addFavorite = addFavorite,
+                        removeFavorite = removeFavorite,
                         modifier = Modifier.padding(
                             bottom = dimensionResource(R.dimen.padding_medium)
                         )
@@ -234,49 +264,22 @@ fun HomeScreenContent(
 
 @Composable
 fun FlightCard(
-    departure: Airport,
-    destination: Airport,
+    departureCode: String,
+    departureName: String,
+    destinationCode: String,
+    destinationName: String,
+    isFavorite: suspend (FavoriteRoute) -> Boolean,
+    addFavorite: (FavoriteRoute) -> Unit,
+    removeFavorite: (FavoriteRoute) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier,
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(dimensionResource(R.dimen.padding_medium)),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(text = departure.iataCode, fontWeight = FontWeight.Bold)
-                Text(text = departure.name)
+    val favoriteRoute = FavoriteRoute(departureCode, destinationCode) // TODO: Optimize
+    var isFav by remember { mutableStateOf(false) } // TODO: Optimize variable name
 
-                Icon(
-                    imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = stringResource(R.string.save_to_favorite)
-                )
-
-                Text(text = destination.iataCode, fontWeight = FontWeight.Bold)
-                Text(text = destination.name)
-            }
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(
-                    imageVector = Icons.Filled.FavoriteBorder,
-                    contentDescription = stringResource(R.string.save_to_favorite)
-                )
-            }
-        }
+    isFav = runBlocking { // TODO: better not to use runBlocking inside of composable
+        isFavorite(favoriteRoute)
     }
-}
 
-@Composable
-fun FlightCard(
-    route: FavoriteRouteExtended,
-    modifier: Modifier = Modifier
-) {
     Card(
         modifier = modifier,
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -290,21 +293,36 @@ fun FlightCard(
             Column(
                 modifier = Modifier.weight(1f)
             ) {
-                Text(text = route.departureCode, fontWeight = FontWeight.Bold)
-                Text(text = route.departureName)
+                Text(text = departureCode, fontWeight = FontWeight.Bold)
+                Text(text = departureName)
 
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = stringResource(R.string.save_to_favorite)
+                    contentDescription = stringResource(R.string.keyboardarrowdown)
                 )
 
-                Text(text = route.destinationCode, fontWeight = FontWeight.Bold)
-                Text(text = route.destinationName)
+                Text(text = destinationCode, fontWeight = FontWeight.Bold)
+                Text(text = destinationName)
             }
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(
+                onClick = {
+                    if (isFav) {
+                        Log.d("FlightCard", "Removing from favorites")
+                        removeFavorite(favoriteRoute)
+                    } else {
+                        Log.d("FlightCard", "Adding to favorites")
+                        addFavorite(favoriteRoute)
+                    }
+                }
+            ) {
+                val (icon, description) = if (isFav) {
+                    Icons.Filled.Favorite to stringResource(R.string.remove_from_favorite)
+                } else {
+                    Icons.Filled.FavoriteBorder to stringResource(R.string.add_to_favorite)
+                }
                 Icon(
-                    imageVector = Icons.Filled.Favorite,
-                    contentDescription = stringResource(R.string.save_to_favorite)
+                    imageVector = icon,
+                    contentDescription = description
                 )
             }
         }

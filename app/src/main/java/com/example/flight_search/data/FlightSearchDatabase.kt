@@ -5,7 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
-@Database(entities = [Airport::class, FavoriteRoute::class], version = 1, exportSchema = false)
+@Database(entities = [Airport::class, FavoriteRoute::class], version = 3, exportSchema = false)
 abstract class FlightSearchDatabase : RoomDatabase() {
     abstract fun airportDao(): AirportDao
     abstract fun favoriteRouteDao(): FavoriteRouteDao
@@ -22,7 +22,7 @@ abstract class FlightSearchDatabase : RoomDatabase() {
                     "flight_search_database"
                 )
                     .createFromAsset("database/flight_search.db")
-                    .fallbackToDestructiveMigration()
+//                    .fallbackToDestructiveMigration() // Comment it before release
                     .build()
                     .also { INSTANCE = it }
             }

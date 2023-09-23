@@ -1,6 +1,9 @@
 package com.example.flight_search.data
 
 import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
@@ -28,4 +31,20 @@ interface FavoriteRouteDao {
         """
     )
     fun getAllFavoriteRoutes(): Flow<List<FavoriteRouteExtended>>
+
+    @Query(
+        """
+            SELECT *
+            FROM favorite
+            WHERE departure_code = :departureCode AND destination_code = :destinationCode
+            LIMIT 1;
+        """
+    )
+    suspend fun isFavoriteRoute(departureCode: String, destinationCode: String) : FavoriteRoute?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun addFavoriteRoute(favoriteRoute: FavoriteRoute)
+
+    @Delete
+    suspend fun deleteFavoriteRoute(favoriteRoute: FavoriteRoute)
 }

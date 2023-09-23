@@ -3,7 +3,8 @@
 
     <string name="search">Search</string>
 
-    <string name="save_to_favorite">Save to favorite</string>
+    <string name="add_to_favorite">Add to favorite</string>
+    <string name="remove_from_favorite">Remove from favorite</string>
 
     <string name="flight_icon">Flight icon</string>
     <string name="search_here">Search here</string>
@@ -12,4 +13,5 @@
 
     <string name="favorite_routes">Favorite routes</string>
     <string name="flights_from">Flights from %s</string>
+    <string name="keyboardarrowdown">KeyboardArrowDown</string>
 </resources>

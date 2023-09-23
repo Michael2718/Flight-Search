@@ -2,13 +2,9 @@ package com.example.flight_search.data
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
-@Entity(tableName = "favorite")
+@Entity(tableName = "favorite", primaryKeys = ["departure_code", "destination_code"])
 data class FavoriteRoute(
-
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
 
     @ColumnInfo(name = "departure_code")
     val departureCode: String = "",

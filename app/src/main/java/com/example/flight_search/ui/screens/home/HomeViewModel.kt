@@ -7,9 +7,11 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.flight_search.FlightSearchApplication
 import com.example.flight_search.data.Airport
+import com.example.flight_search.data.FavoriteRoute
 import com.example.flight_search.data.FavoriteRouteExtended
 import com.example.flight_search.data.FlightSearchRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -25,9 +27,9 @@ class HomeViewModel(
 
     val uiState: StateFlow<HomeUiState> = _uiState
 
-    init {
-        updateFavoriteRoutes()
-    }
+//    init {
+//        updateFavoriteRoutes()
+//    }
 
     fun getSuggestions(query: String) =
         flightSearchRepository.getSuggestions(query)
@@ -65,17 +67,17 @@ class HomeViewModel(
         }
     }
 
-    fun updateFavoriteRoutes() {
-        viewModelScope.launch(Dispatchers.IO) {
-            flightSearchRepository.getAllFavoriteRoutes().collect { routes ->
-                _uiState.update {
-                    it.copy(
-                        favoriteRoutes = routes
-                    )
-                }
-            }
-        }
-    }
+//    fun updateFavoriteRoutes() {
+//        viewModelScope.launch(Dispatchers.IO) {
+//            flightSearchRepository.getAllFavoriteRoutes().collect { routes ->
+//                _uiState.update {
+//                    it.copy(
+//                        favoriteRoutes = routes
+//                    )
+//                }
+//            }
+//        }
+//    }
 
     fun isSearching(isSearching: Boolean) {
         _uiState.update {
@@ -83,6 +85,26 @@ class HomeViewModel(
                 isSearching = isSearching
             )
         }
+    }
+
+    fun getAllFavoriteRoutes(): Flow<List<FavoriteRouteExtended>> {
+        return flightSearchRepository.getAllFavoriteRoutes()
+    }
+
+    fun addFavoriteRoute(route: FavoriteRoute) {
+        viewModelScope.launch(Dispatchers.IO) {
+            flightSearchRepository.addFavoriteRoute(route)
+        }
+    }
+
+    fun removeFavoriteRoute(route: FavoriteRoute) {
+        viewModelScope.launch(Dispatchers.IO) {
+            flightSearchRepository.removeFavoriteRoute(route)
+        }
+    }
+
+    suspend fun isFavoriteRoute(route: FavoriteRoute): Boolean {
+            return flightSearchRepository.isFavoriteRoute(route)
     }
 
     companion object {
@@ -101,6 +123,7 @@ data class HomeUiState(
     val query: String = "",
     val currentDeparture: Airport? = null,
     val destinations: List<Airport> = emptyList(),
-    val favoriteRoutes: List<FavoriteRouteExtended> = emptyList(),
+//    val favoriteRoutes: List<FavoriteRouteExtended> = emptyList(),
+//    val isCurrentRouteFavorite: Boolean = false,
     val isSearching: Boolean = false,
 )
