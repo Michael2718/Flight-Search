@@ -8,6 +8,9 @@ interface AppContainer {
 
 class AppDataContainer(private val context: Context): AppContainer {
     override val flightSearchRepository: FlightSearchRepository by lazy {
-        LocalFlightSearchRepository(FlightSearchDatabase.getDatabase(context).itemDao())
+        LocalFlightSearchRepository(
+            airportDao = FlightSearchDatabase.getDatabase(context).airportDao(),
+            favoriteRouteDao = FlightSearchDatabase.getDatabase(context).favoriteRouteDao()
+        )
     }
 }

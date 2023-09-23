@@ -6,6 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "airport")
 data class Airport(
+
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
@@ -15,9 +16,4 @@ data class Airport(
     val name: String = "",
 
     val passengers: Int = 0
-)
-
-data class FlightPair(
-    val departure: Airport,
-    val destination: Airport
 )

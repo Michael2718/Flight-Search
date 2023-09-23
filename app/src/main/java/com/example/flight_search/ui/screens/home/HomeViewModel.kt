@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.flight_search.FlightSearchApplication
 import com.example.flight_search.data.Airport
+import com.example.flight_search.data.FavoriteRouteExtended
 import com.example.flight_search.data.FlightSearchRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,12 +25,24 @@ class HomeViewModel(
 
     val uiState: StateFlow<HomeUiState> = _uiState
 
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            flightSearchRepository.getAllFavoriteRoutes().collect { list ->
+                _uiState.update {
+                    it.copy(
+                        favoriteRoutes = list
+                    )
+                }
+            }
+        }
+    }
+
     fun getSuggestions(query: String) =
         flightSearchRepository.getSuggestions(query)
 
     fun updateDeparture(query: String) {
         viewModelScope.launch(Dispatchers.IO) {
-            flightSearchRepository.getItemByQuery(query).collect { list ->
+            flightSearchRepository.getDepartureByQuery(query).collect { list ->
                 _uiState.update {
                     it.copy(
                         currentDeparture = list.firstOrNull()
@@ -68,6 +81,19 @@ class HomeViewModel(
         }
     }
 
+//    fun updateFavoriteRoutes(currentDeparture: Airport?) {
+//        val iataCode = currentDeparture?.iataCode ?: ""
+//        viewModelScope.launch(Dispatchers.IO) {
+//            flightSearchRepository.getDestinations(iataCode).collect { list ->
+//                _uiState.update {
+//                    it.copy(
+//                        destinations = list
+//                    )
+//                }
+//            }
+//        }
+//    }
+
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -84,5 +110,6 @@ data class HomeUiState(
     val query: String = "",
     val currentDeparture: Airport? = null,
     val destinations: List<Airport> = emptyList(),
+    val favoriteRoutes: List<FavoriteRouteExtended> = emptyList(),
     val isSearching: Boolean = false,
 )

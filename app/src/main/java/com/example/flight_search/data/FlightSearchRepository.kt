@@ -3,42 +3,45 @@ package com.example.flight_search.data
 import kotlinx.coroutines.flow.Flow
 
 interface FlightSearchRepository {
-    fun getItemByIataCode(iataCode: String): Flow<List<Airport>>
+    fun getDepartureByQuery(query: String): Flow<List<Airport>>
 
-    fun getItemByName(name: String): Flow<List<Airport>>
+//    fun getAirportByIataCodeList(iataCode: String): List<Airport>
 
-    fun getItemByQuery(query: String): Flow<List<Airport>>
-
-    fun getAllItems(): Flow<List<Airport>>
+    fun getAllAirports(): Flow<List<Airport>>
 
     fun getSuggestions(query: String): Flow<List<Airport>>
 
     fun getDestinations(departureCode: String): Flow<List<Airport>>
+
+    fun getAllFavoriteRoutes(): Flow<List<FavoriteRouteExtended>>
 }
 
-class LocalFlightSearchRepository(private val dao: AirportDao): FlightSearchRepository {
+class LocalFlightSearchRepository(
+    private val airportDao: AirportDao,
+    private val favoriteRouteDao: FavoriteRouteDao
+) : FlightSearchRepository {
 
-    override fun getItemByIataCode(iataCode: String): Flow<List<Airport>> {
-        return dao.getItemByIataCode(iataCode)
+    override fun getDepartureByQuery(query: String): Flow<List<Airport>> {
+        return airportDao.getDepartureByQuery(query)
     }
 
-    override fun getItemByName(name: String): Flow<List<Airport>> {
-        return dao.getItemByName(name)
-    }
+//    override fun getAirportByIataCodeList(iataCode: String): List<Airport> {
+//        return airportDao.getAirportByIataCodeList(iataCode)
+//    }
 
-    override fun getItemByQuery(query: String): Flow<List<Airport>> {
-        return dao.getItemByQuery(query)
-    }
-
-    override fun getAllItems(): Flow<List<Airport>> {
-        return dao.getAllItems()
+    override fun getAllAirports(): Flow<List<Airport>> {
+        return airportDao.getAllAirports()
     }
 
     override fun getSuggestions(query: String): Flow<List<Airport>> {
-        return dao.getSuggestions(query)
+        return airportDao.getSuggestions(query)
     }
 
     override fun getDestinations(departureCode: String): Flow<List<Airport>> {
-        return dao.getDestinations(departureCode)
+        return airportDao.getDestinations(departureCode)
+    }
+
+    override fun getAllFavoriteRoutes(): Flow<List<FavoriteRouteExtended>> {
+        return favoriteRouteDao.getAllFavoriteRoutes()
     }
 }

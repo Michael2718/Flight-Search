@@ -3,13 +3,13 @@
 
     <string name="search">Search</string>
 
-    <string name="save_to_favourite">Save to favourite</string>
+    <string name="save_to_favorite">Save to favorite</string>
 
     <string name="flight_icon">Flight icon</string>
     <string name="search_here">Search here</string>
     <string name="clear">Clear</string>
     <string name="back">Back</string>
 
-    <string name="favourite_routes">Favourite routes</string>
+    <string name="favorite_routes">Favorite routes</string>
     <string name="flights_from">Flights from %s</string>
 </resources>

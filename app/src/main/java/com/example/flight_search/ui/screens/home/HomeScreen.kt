@@ -1,6 +1,5 @@
 package com.example.flight_search.ui.screens.home
 
-import android.content.Context
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,6 +13,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
@@ -41,6 +41,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.flight_search.R
 import com.example.flight_search.data.Airport
+import com.example.flight_search.data.FavoriteRouteExtended
 import com.example.flight_search.ui.theme.FlightSearchTheme
 import kotlinx.coroutines.flow.Flow
 
@@ -52,7 +53,7 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    val context: Context
+//    val context: Context
     val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
@@ -91,6 +92,7 @@ fun HomeScreen(
             query = uiState.query,
             currentDeparture = uiState.currentDeparture,
             destinations = uiState.destinations,
+            favoriteRoutes = uiState.favoriteRoutes,
             modifier = Modifier
                 .padding(innerPadding)
         )
@@ -172,6 +174,7 @@ fun HomeScreenContent(
     query: String,
     currentDeparture: Airport?,
     destinations: List<Airport>,
+    favoriteRoutes: List<FavoriteRouteExtended>,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -180,7 +183,7 @@ fun HomeScreenContent(
     ) {
         Text(
             text = if (query.isEmpty()) {
-                stringResource(R.string.favourite_routes)
+                stringResource(R.string.favorite_routes)
             } else if (currentDeparture == null) {
                 "Sorry, we couldn't find any airports matching your search. Please double-check your query or try searching for a different airport."
             } else {
@@ -191,30 +194,29 @@ fun HomeScreenContent(
         )
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
 
-        val savedDestinations = listOf(
-            Airport(
-                2,
-                "ARN",
-                "Stockholm Arlanda Airport",
-                7494765
-            ),
-            Airport(
-                1,
-                "OPO",
-                "Francisco Sá Carneiro Airport",
-                5053134
-            )
-        )
+//        val savedDestinations = listOf(
+//            Airport(
+//                2,
+//                "ARN",
+//                "Stockholm Arlanda Airport",
+//                7494765
+//            ),
+//            Airport(
+//                1,
+//                "OPO",
+//                "Francisco Sá Carneiro Airport",
+//                5053134
+//            )
+//        )
 
 //        val destinationsList by destinationsFlow.collectAsState(initial = emptyList())
         LazyColumn(
             modifier = Modifier.fillMaxWidth()
         ) {
             if (query.isEmpty()) {
-                items(items = savedDestinations) { destination ->
+                items(items = favoriteRoutes) { route ->
                     FlightCard(
-                        departure = destination,
-                        destination = destination,
+                        route = route,
                         modifier = Modifier.padding(
                             bottom = dimensionResource(R.dimen.padding_medium)
                         )
@@ -235,13 +237,6 @@ fun HomeScreenContent(
             }
         }
     }
-}
-
-@Composable
-fun SavedFlights(
-    modifier: Modifier = Modifier
-) {
-
 }
 
 @Composable
@@ -268,7 +263,7 @@ fun FlightCard(
 
                 Icon(
                     imageVector = Icons.Filled.KeyboardArrowDown,
-                    contentDescription = stringResource(R.string.save_to_favourite)
+                    contentDescription = stringResource(R.string.save_to_favorite)
                 )
 
                 Text(text = destination.iataCode, fontWeight = FontWeight.Bold)
@@ -277,7 +272,46 @@ fun FlightCard(
             IconButton(onClick = { /*TODO*/ }) {
                 Icon(
                     imageVector = Icons.Filled.FavoriteBorder,
-                    contentDescription = stringResource(R.string.save_to_favourite)
+                    contentDescription = stringResource(R.string.save_to_favorite)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun FlightCard(
+    route: FavoriteRouteExtended,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(dimensionResource(R.dimen.padding_medium)),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(text = route.departureCode, fontWeight = FontWeight.Bold)
+                Text(text = route.departureName)
+
+                Icon(
+                    imageVector = Icons.Filled.KeyboardArrowDown,
+                    contentDescription = stringResource(R.string.save_to_favorite)
+                )
+
+                Text(text = route.destinationCode, fontWeight = FontWeight.Bold)
+                Text(text = route.destinationName)
+            }
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(
+                    imageVector = Icons.Filled.Favorite,
+                    contentDescription = stringResource(R.string.save_to_favorite)
                 )
             }
         }

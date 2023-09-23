@@ -9,42 +9,34 @@ interface AirportDao {
     @Query(
         """
             SELECT * FROM airport
-            WHERE iata_code = :iataCode
-        """
-    )
-    fun getItemByIataCode(iataCode: String): Flow<List<Airport>>
-
-    @Query(
-        """
-            SELECT * FROM airport
-            WHERE name = :name
-        """
-    )
-    fun getItemByName(name: String): Flow<List<Airport>>
-
-    @Query(
-        """
-            SELECT * FROM airport
             WHERE iata_code LIKE ('%' || :query || '%') OR name LIKE ('%' || :query || '%')
-            ORDER BY iata_code ASC
+            ORDER BY iata_code
             LIMIT 1
         """
     )
-    fun getItemByQuery(query: String): Flow<List<Airport>>
+    fun getDepartureByQuery(query: String): Flow<List<Airport>>
+
+//    @Query(
+//        """
+//            SELECT * FROM airport
+//            WHERE iata_code = :iataCode
+//        """
+//    )
+//    fun getAirportByIataCodeList(iataCode: String): List<Airport>
 
     @Query(
         """
             SELECT * FROM airport
-            ORDER BY id ASC
+            ORDER BY id
         """
     )
-    fun getAllItems(): Flow<List<Airport>>
+    fun getAllAirports(): Flow<List<Airport>>
 
     @Query(
         """
             SELECT * FROM airport
             WHERE iata_code LIKE ('%' || :query || '%') OR name LIKE ('%' || :query || '%')
-            ORDER BY iata_code ASC
+            ORDER BY iata_code
         """
     )
     fun getSuggestions(query: String): Flow<List<Airport>>
