@@ -26,15 +26,7 @@ class HomeViewModel(
     val uiState: StateFlow<HomeUiState> = _uiState
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
-            flightSearchRepository.getAllFavoriteRoutes().collect { list ->
-                _uiState.update {
-                    it.copy(
-                        favoriteRoutes = list
-                    )
-                }
-            }
-        }
+        updateFavoriteRoutes()
     }
 
     fun getSuggestions(query: String) =
@@ -73,6 +65,18 @@ class HomeViewModel(
         }
     }
 
+    fun updateFavoriteRoutes() {
+        viewModelScope.launch(Dispatchers.IO) {
+            flightSearchRepository.getAllFavoriteRoutes().collect { routes ->
+                _uiState.update {
+                    it.copy(
+                        favoriteRoutes = routes
+                    )
+                }
+            }
+        }
+    }
+
     fun isSearching(isSearching: Boolean) {
         _uiState.update {
             it.copy(
@@ -80,19 +84,6 @@ class HomeViewModel(
             )
         }
     }
-
-//    fun updateFavoriteRoutes(currentDeparture: Airport?) {
-//        val iataCode = currentDeparture?.iataCode ?: ""
-//        viewModelScope.launch(Dispatchers.IO) {
-//            flightSearchRepository.getDestinations(iataCode).collect { list ->
-//                _uiState.update {
-//                    it.copy(
-//                        destinations = list
-//                    )
-//                }
-//            }
-//        }
-//    }
 
     companion object {
         val factory: ViewModelProvider.Factory = viewModelFactory {

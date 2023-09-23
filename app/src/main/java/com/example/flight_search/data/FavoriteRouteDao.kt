@@ -23,7 +23,8 @@ interface FavoriteRouteDao {
                    airport_2.name AS destination_name
             FROM favorite
                 JOIN airport AS airport_1 ON favorite.departure_code = airport_1.iata_code
-                JOIN airport AS airport_2 ON favorite.destination_code = airport_2.iata_code;
+                JOIN airport AS airport_2 ON favorite.destination_code = airport_2.iata_code
+            ORDER BY departure_code;
         """
     )
     fun getAllFavoriteRoutes(): Flow<List<FavoriteRouteExtended>>

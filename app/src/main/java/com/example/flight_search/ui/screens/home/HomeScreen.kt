@@ -66,11 +66,12 @@ fun HomeScreen(
                     viewModel.updateQuery(it)
                 },
                 onSearch = {
+                    viewModel.isSearching(false)
+                    keyboardController?.hide()
+
                     viewModel.updateQuery(it)
                     viewModel.updateDeparture(it)
-                    viewModel.isSearching(false)
                     viewModel.updateDestinations(uiState.currentDeparture)
-                    keyboardController?.hide()
                 },
                 isSearching = uiState.isSearching,
                 onActiveChange = {
@@ -81,7 +82,12 @@ fun HomeScreen(
                     keyboardController?.hide()
                 },
                 onClear = {
-                    viewModel.updateQuery("")
+                    if (uiState.query.isEmpty()) {
+                        viewModel.isSearching(false)
+                        keyboardController?.hide()
+                    } else {
+                        viewModel.updateQuery("")
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -139,11 +145,13 @@ fun SearchTopAppBar(
             }
         },
         trailingIcon = {
-            IconButton(onClick = onClear) {
-                Icon(
-                    imageVector = Icons.Filled.Clear,
-                    contentDescription = stringResource(R.string.clear)
-                )
+            if (query.isNotEmpty()) {
+                IconButton(onClick = onClear) {
+                    Icon(
+                        imageVector = Icons.Filled.Clear,
+                        contentDescription = stringResource(R.string.clear)
+                    )
+                }
             }
         }
     ) {
@@ -192,24 +200,9 @@ fun HomeScreenContent(
             modifier.padding(dimensionResource(R.dimen.padding_medium)),
             style = MaterialTheme.typography.titleLarge
         )
+
         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_medium)))
 
-//        val savedDestinations = listOf(
-//            Airport(
-//                2,
-//                "ARN",
-//                "Stockholm Arlanda Airport",
-//                7494765
-//            ),
-//            Airport(
-//                1,
-//                "OPO",
-//                "Francisco Sá Carneiro Airport",
-//                5053134
-//            )
-//        )
-
-//        val destinationsList by destinationsFlow.collectAsState(initial = emptyList())
         LazyColumn(
             modifier = Modifier.fillMaxWidth()
         ) {
